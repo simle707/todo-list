@@ -1,6 +1,59 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+
+
 ## Getting Started
+
+#### 第一步： prisma/schema.prism
+
+#### 第二步：创建配置文件prisma.config.ts
+
+```code
+// prisma.config.ts
+import { defineConfig } from '@prisma/config';
+
+export default defineConfig({
+  datasource: {
+    // 这里的 url 依然从环境变量读取
+    url: process.env.DATABASE_URL,
+  },
+});
+```
+
+#### or 执行下面命令实现前两步
+
+```bash
+npx prisma init
+npx prisma generate //配置修改后执行
+```
+
+#### 第三步：安装数据库驱动程序：
+
+```bash
+npm install @prisma/adapter-pg pg
+npm install -D @types/pg
+```
+
+#### 第四步：初始化Prisma Client(关键在 lib/prisma.ts)中把适配器传给Prisma
+
+```code
+// lib/prisma.ts
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
+
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+
+export const prisma = new PrismaClient({ adapter });
+```
+
+#### 最后步骤：同步你的 Supabase 数据库
+
+```bash
+npx prisma db push
+```
+
 
 First, run the development server:
 
